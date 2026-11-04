@@ -12,6 +12,24 @@ services:
     environment:
       FLOCI_STORAGE_MODE: hybrid
 
+  # AWS CLI that runs inside the compose network, so it reaches Floci by name.
+  # Works the same on Linux, macOS and Windows (no host networking needed).
+  # Usage: docker compose run --rm aws s3 ls
+  aws:
+    image: amazon/aws-cli:latest
+    profiles: ["tools"]
+    entrypoint: ["aws"]
+    working_dir: /work
+    volumes:
+      - .:/work
+    environment:
+      AWS_ENDPOINT_URL: http://floci:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+    depends_on:
+      - floci
+
   postgres:
     image: postgres:16-alpine
     container_name: tlp4-postgres

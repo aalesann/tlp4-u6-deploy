@@ -32,29 +32,41 @@ crear contenedores reales. El volumen `floci-data` conserva el estado entre rein
 ```bash
 docker compose up -d
 docker compose ps            # los tres contenedores deben estar "running"
-./scripts/init.sh
-./scripts/check.sh
+cd backend
+npm install
+npm run init
+npm run check
 ```
 
-`init.sh` crea los recursos de AWS que usa la aplicación. Es idempotente: puedes ejecutarlo
-varias veces sin romper nada.
+`npm run init` crea los recursos de AWS que usa la aplicación. Es idempotente: puedes
+ejecutarlo varias veces sin romper nada. `npm run check` comprueba que todo responda.
+Ambos scripts están en `backend/scripts/` y usan el SDK de AWS para JavaScript, el mismo
+que usa la API, así que funcionan igual en Windows, macOS y Linux.
 
 ## Usar el AWS CLI
 
-`scripts/aws.sh` ejecuta el AWS CLI oficial apuntando a Floci:
+`docker-compose.yml` incluye un servicio `aws` con el AWS CLI oficial, ya configurado para
+hablar con Floci. Se ejecuta desde la raíz del repositorio:
 
 ```bash
-./scripts/aws.sh s3 ls
-./scripts/aws.sh sqs list-queues
+docker compose run --rm aws s3 ls
+docker compose run --rm aws sqs list-queues
 ```
 
-Si prefieres instalar el AWS CLI, agrega `--endpoint-url http://localhost:4566` a cada
-comando, o exporta `AWS_ENDPOINT_URL=http://localhost:4566`.
+Docker muestra algunas líneas sobre el contenedor antes de la respuesta; es normal. El
+servicio monta la raíz del repositorio en `/work`, por lo que puede leer archivos del
+proyecto (por ejemplo `infra/stack.yaml`).
+
+Dentro de ese contenedor, Floci se llama `floci` y no `localhost`. Lo notarás en las URL de
+las colas (guía 04).
+
+Si prefieres instalar el AWS CLI en tu máquina, agrega `--endpoint-url http://localhost:4566`
+a cada comando.
 
 ## Ejercicios
 
-1. Ejecuta `./scripts/aws.sh s3 ls`. ¿Qué bucket aparece y quién lo creó?
-2. Detén Floci con `docker stop tlp4-floci` y ejecuta `./scripts/check.sh`. ¿Qué falla
+1. Ejecuta `docker compose run --rm aws s3 ls`. ¿Qué bucket aparece y quién lo creó?
+2. Detén Floci con `docker stop tlp4-floci` y ejecuta `npm run check` (dentro de `backend`). ¿Qué falla
    y qué sigue funcionando? Vuelve a levantarlo con `docker start tlp4-floci`.
 3. Ejecuta `docker compose down` y luego `docker compose up -d`. ¿Siguen existiendo el
    bucket y la cola? ¿Por qué? (Pista: el volumen `floci-data`.)
@@ -64,7 +76,7 @@ comando, o exporta `AWS_ENDPOINT_URL=http://localhost:4566`.
 
 - **El puerto 4566, 5432 o 27017 está ocupado:** hay otro servicio usando ese puerto.
   Deténlo o cambia el puerto de la izquierda en `docker-compose.yml`.
-- **`check.sh` falla justo después de `docker compose up`:** espera unos segundos a que
+- **`npm run check` falla justo después de `docker compose up`:** espera unos segundos a que
   arranquen los contenedores y vuelve a ejecutarlo.
 - **Permiso denegado sobre el socket de Docker:** tu usuario debe pertenecer al grupo
   `docker`.

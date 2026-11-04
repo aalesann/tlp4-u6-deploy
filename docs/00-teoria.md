@@ -138,7 +138,7 @@ Preguntas:
 
 Describir los recursos en archivos versionables, en lugar de crearlos a mano.
 
-- **Imperativo:** una lista de comandos (`scripts/init.sh`). Dice *cómo* hacerlo.
+- **Imperativo:** una lista de comandos (`npm run init`). Dice *cómo* hacerlo.
 - **Declarativo:** una plantilla con el estado deseado (`infra/stack.yaml`). Dice *qué*
   debe existir y la herramienta calcula los pasos.
 

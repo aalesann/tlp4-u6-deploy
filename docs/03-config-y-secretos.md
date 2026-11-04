@@ -26,11 +26,10 @@ Ventajas frente a un archivo `.env` copiado a mano:
 ## Con la línea de comandos
 
 ```bash
-./scripts/aws.sh ssm get-parameter --name /tlp4/app/greeting
-./scripts/aws.sh ssm put-parameter --name /tlp4/app/greeting \
-  --value "Hola desde la nube local" --type String --overwrite
+docker compose run --rm aws ssm get-parameter --name /tlp4/app/greeting
+docker compose run --rm aws ssm put-parameter --name /tlp4/app/greeting --value "Hola desde la nube local" --type String --overwrite
 
-./scripts/aws.sh secretsmanager get-secret-value --secret-id tlp4/app/credentials
+docker compose run --rm aws secretsmanager get-secret-value --secret-id tlp4/app/credentials
 ```
 
 ## Ejercicios

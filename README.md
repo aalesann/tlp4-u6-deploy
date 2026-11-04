@@ -24,18 +24,36 @@ PostgreSQL y MongoDB son contenedores normales.
 - Docker con Docker Compose
 - Node.js 20 o superior
 
-No hace falta instalar el AWS CLI: `scripts/aws.sh` lo ejecuta dentro de Docker.
+No hace falta instalar el AWS CLI: el servicio `aws` de `docker-compose.yml` lo ejecuta
+dentro de Docker (`docker compose run --rm aws s3 ls`). Si usas Windows, lee antes
+[Si usas Windows](#si-usas-windows).
 
 ## Inicio rápido
 
-```bash
-docker compose up -d          # Floci + PostgreSQL + MongoDB
-./scripts/init.sh             # crea bucket, cola, parámetro y secreto
-./scripts/check.sh            # todo debe decir OK (y terminar en "Todo en orden.")
+Terminal 1, desde la raíz del repositorio:
 
-cd backend && npm install && npm start        # terminal 1: API
-cd backend && npm run worker                  # terminal 2: worker de SQS
-cd frontend && npm install && npm run dev     # terminal 3: React en :5173
+```bash
+docker compose up -d     # Floci + PostgreSQL + MongoDB
+cd backend
+npm install
+npm run init             # crea bucket, cola, parámetro y secreto
+npm run check            # todo debe decir OK (y terminar en "Todo en orden.")
+npm start                # API en :3000 (déjala corriendo)
+```
+
+Terminal 2, el worker de SQS:
+
+```bash
+cd backend
+npm run worker
+```
+
+Terminal 3, React en :5173:
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
 Abre http://localhost:5173 y sube un archivo. La franja de progreso muestra cómo avanza por
@@ -61,12 +79,25 @@ Hazlas en orden. Cada una explica el concepto y termina con ejercicios.
 
 ```text
 docker-compose.yml   Floci + PostgreSQL + MongoDB
-scripts/             aws.sh (AWS CLI en Docker), init.sh, check.sh
-backend/             API Express y worker SQS
+backend/             API Express, worker SQS y scripts (npm run init / check)
+examples/            archivos de ejemplo para las guías
 frontend/            React + Vite + Tailwind CSS (componentes en src/components)
 infra/stack.yaml     plantilla CloudFormation
 docs/                guías prácticas
 ```
+
+## Si usas Windows
+
+Los comandos están escritos para funcionar en PowerShell, CMD y Git Bash. Tres cosas a tener en cuenta:
+
+- **Docker Desktop** debe estar abierto, con el motor WSL 2 (la opción por defecto). Floci
+  necesita acceso al socket de Docker, que Docker Desktop ya provee.
+- **Git Bash** reescribe los argumentos que empiezan con `/`, como `--name /tlp4/app/greeting`.
+  Antepón `MSYS_NO_PATHCONV=1` al comando, o usa PowerShell.
+- **`curl` en PowerShell** es un alias de otro comando. Escribe `curl.exe`.
+
+Al clonar, el archivo `.gitattributes` mantiene los saltos de línea en formato LF para que no
+haya diferencias entre sistemas.
 
 ## Variables de entorno
 

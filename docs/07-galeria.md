@@ -62,12 +62,12 @@ Con la aplicación levantada (API, worker y React):
 3. Sube un `.txt`: la franja marca la miniatura como omitida y el archivo aparece en la
    lista de archivos pero no en la galería.
 
-Por línea de comandos:
+Por línea de comandos (en PowerShell escribe `curl.exe` en lugar de `curl`):
 
 ```bash
 curl -F file=@foto.jpg localhost:3000/files
 curl localhost:3000/gallery
-./scripts/aws.sh s3 ls s3://tlp4-uploads/thumbs/
+docker compose run --rm aws s3 ls s3://tlp4-uploads/thumbs/
 docker exec -it tlp4-postgres psql -U tlp4 -c "SELECT * FROM thumbnails;"
 ```
 

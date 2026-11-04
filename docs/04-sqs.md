@@ -36,10 +36,16 @@ agregar más workers si hay mucha carga.
 ## Con la línea de comandos
 
 ```bash
-URL=http://localhost:4566/000000000000/tlp4-events
-./scripts/aws.sh sqs send-message --queue-url $URL --message-body '{"type":"manual","name":"prueba"}'
-./scripts/aws.sh sqs get-queue-attributes --queue-url $URL --attribute-names ApproximateNumberOfMessages
+docker compose run --rm aws sqs send-message --queue-url http://floci:4566/000000000000/tlp4-events --message-body file://examples/message.json
+docker compose run --rm aws sqs get-queue-attributes --queue-url http://floci:4566/000000000000/tlp4-events --attribute-names ApproximateNumberOfMessages
 ```
+
+Dos detalles:
+
+- La URL usa el nombre `floci` y no `localhost`, porque el AWS CLI corre dentro de Docker y
+  ahí Floci se llama así. La API y el worker, que corren en tu máquina, usan `localhost`.
+- El mensaje se lee desde el archivo `examples/message.json` (`file://`). Así se evitan los
+  problemas de comillas del JSON en PowerShell.
 
 ## Ejercicios
 
