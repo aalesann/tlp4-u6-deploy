@@ -29,6 +29,11 @@ crear contenedores reales. El volumen `floci-data` conserva el estado entre rein
 
 ## Paso a paso
 
+El atajo es ejecutar `./scripts/up.sh` (Linux y macOS) o
+`powershell -ExecutionPolicy Bypass -File scripts\up.ps1` (Windows), que hacen todo lo de
+esta guía y además inician la API, el worker y el frontend. Para entender cada pieza, los
+pasos manuales son estos:
+
 ```bash
 docker compose up -d
 docker compose ps            # los tres contenedores deben estar "running"

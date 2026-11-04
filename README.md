@@ -30,6 +30,28 @@ dentro de Docker (`docker compose run --rm aws s3 ls`). Si usas Windows, lee ant
 
 ## Inicio rápido
 
+Un script levanta todo: contenedores, dependencias, recursos de AWS, API, worker y frontend.
+Ejecútalo desde la raíz del repositorio.
+
+Linux y macOS:
+
+```bash
+./scripts/up.sh
+```
+
+Windows (PowerShell):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\up.ps1
+```
+
+Cuando termina, abre http://localhost:5173. En Linux y macOS, `Ctrl+C` detiene la API, el
+worker y el frontend (los logs quedan en `.logs/`). En Windows cada uno corre en su propia
+ventana: ciérralas para detenerlos. En ambos casos, `docker compose down` apaga los
+contenedores.
+
+### Paso a paso (lo que hace el script)
+
 Terminal 1, desde la raíz del repositorio:
 
 ```bash
@@ -79,6 +101,7 @@ Hazlas en orden. Cada una explica el concepto y termina con ejercicios.
 
 ```text
 docker-compose.yml   Floci + PostgreSQL + MongoDB
+scripts/             up.sh (Linux/macOS) y up.ps1 (Windows): levantan todo
 backend/             API Express, worker SQS y scripts (npm run init / check)
 examples/            archivos de ejemplo para las guías
 frontend/            React + Vite + Tailwind CSS (componentes en src/components)
@@ -88,8 +111,10 @@ docs/                guías prácticas
 
 ## Si usas Windows
 
-Los comandos están escritos para funcionar en PowerShell, CMD y Git Bash. Tres cosas a tener en cuenta:
+Los comandos están escritos para funcionar en PowerShell, CMD y Git Bash. Cuatro cosas a tener en cuenta:
 
+- **`up.ps1`** se ejecuta con `-ExecutionPolicy Bypass`, como en el comando de arriba, porque
+  Windows bloquea los scripts de PowerShell por defecto.
 - **Docker Desktop** debe estar abierto, con el motor WSL 2 (la opción por defecto). Floci
   necesita acceso al socket de Docker, que Docker Desktop ya provee.
 - **Git Bash** reescribe los argumentos que empiezan con `/`, como `--name /tlp4/app/greeting`.
