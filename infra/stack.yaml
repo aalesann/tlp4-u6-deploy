@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: TLP4 lab - same resources as scripts/init.sh, described as code.
+
+Parameters:
+  Env:
+    Type: String
+    Default: iac
+
+Resources:
+  UploadsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "tlp4-uploads-${Env}"
+
+  EventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "tlp4-events-${Env}"
+
+  GreetingParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/tlp4/${Env}/greeting"
+      Type: String
+      Value: Hola desde CloudFormation
+
+Outputs:
+  BucketName:
+    Value: !Ref UploadsBucket
+  QueueUrl:
+    Value: !Ref EventsQueue

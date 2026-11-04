@@ -1,0 +1,38 @@
+services:
+  floci:
+    image: floci/floci:latest
+    container_name: tlp4-floci
+    ports:
+      - "4566:4566"
+    volumes:
+      # Floci needs the Docker socket to start real containers for some services.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persist emulator state across restarts.
+      - floci-data:/app/data
+    environment:
+      FLOCI_STORAGE_MODE: hybrid
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: tlp4-postgres
+    environment:
+      POSTGRES_USER: tlp4
+      POSTGRES_PASSWORD: tlp4
+      POSTGRES_DB: tlp4
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:7
+    container_name: tlp4-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  floci-data:
+  postgres-data:
+  mongo-data:

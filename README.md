@@ -1,0 +1,87 @@
+# TLP4 - Unidad 6: Despliegue en la nube (en localhost)
+
+Laboratorio para practicar servicios de AWS sin cuenta, sin tarjeta y sin costos, usando
+[Floci](https://floci.io/aws/), un emulador local de AWS. El stack es el de la cursada:
+Express, React, MongoDB y PostgreSQL.
+
+## Qué vas a levantar
+
+```text
+React (5173) ──► Express (3000) ──┬─► S3          archivos subidos
+                                  ├─► PostgreSQL  metadatos de los archivos
+                                  ├─► SQS         cola de eventos
+                                  ├─► SSM         configuración
+                                  └─► Secrets Mgr credenciales
+                  Worker ◄── SQS ──► MongoDB      eventos procesados
+                         └─► S3 + PostgreSQL        miniaturas de la galería
+```
+
+S3, SQS, SSM y Secrets Manager los emula Floci en `http://localhost:4566`.
+PostgreSQL y MongoDB son contenedores normales.
+
+## Requisitos
+
+- Docker con Docker Compose
+- Node.js 20 o superior
+
+No hace falta instalar el AWS CLI: `scripts/aws.sh` lo ejecuta dentro de Docker.
+
+## Inicio rápido
+
+```bash
+docker compose up -d          # Floci + PostgreSQL + MongoDB
+./scripts/init.sh             # crea bucket, cola, parámetro y secreto
+./scripts/check.sh            # todo debe decir OK (y terminar en "Todo en orden.")
+
+cd backend && npm install && npm start        # terminal 1: API
+cd backend && npm run worker                  # terminal 2: worker de SQS
+cd frontend && npm install && npm run dev     # terminal 3: React en :5173
+```
+
+Abre http://localhost:5173 y sube un archivo. La franja de progreso muestra cómo avanza por
+S3, SQS, el worker y la miniatura. Si es una imagen, aparece en la galería; el archivo y su
+evento se listan al final de la página. Si el worker está apagado, la franja te avisa.
+
+## Guías
+
+Hazlas en orden. Cada una explica el concepto y termina con ejercicios.
+
+| Guía | Tema |
+| --- | --- |
+| [00 - Teoría](docs/00-teoria.md) | Conceptos de nube, servicios y arquitecturas. Léela primero |
+| [01 - Puesta en marcha](docs/01-setup.md) | Qué es un emulador, levantar y verificar |
+| [02 - S3](docs/02-s3.md) | Almacenamiento de objetos y URLs prefirmadas |
+| [03 - Configuración y secretos](docs/03-config-y-secretos.md) | SSM Parameter Store y Secrets Manager |
+| [04 - SQS](docs/04-sqs.md) | Colas y procesamiento asíncrono |
+| [05 - Bases de datos](docs/05-bases-de-datos.md) | PostgreSQL y MongoDB, cada una para lo que sirve |
+| [06 - Infraestructura como código](docs/06-iac-cloudformation.md) | CloudFormation |
+| [07 - Galería de imágenes](docs/07-galeria.md) | Feature nueva: miniaturas generadas por el worker |
+
+## Estructura
+
+```text
+docker-compose.yml   Floci + PostgreSQL + MongoDB
+scripts/             aws.sh (AWS CLI en Docker), init.sh, check.sh
+backend/             API Express y worker SQS
+frontend/            React + Vite + Tailwind CSS (componentes en src/components)
+infra/stack.yaml     plantilla CloudFormation
+docs/                guías prácticas
+```
+
+## Variables de entorno
+
+Todas son opcionales: los valores por defecto funcionan con este repositorio.
+Están definidas en [`backend/src/config.js`](backend/src/config.js). Las principales:
+`AWS_ENDPOINT_URL`, `S3_BUCKET`, `SQS_QUEUE_NAME`, `DATABASE_URL`, `MONGO_URL`.
+
+## Limpieza
+
+```bash
+docker compose down        # apaga, conserva los datos
+docker compose down -v     # apaga y borra todos los datos
+```
+
+## Advertencia
+
+Floci es para desarrollo y práctica. No replica la seguridad de AWS: las credenciales
+`test`/`test` y el secreto de ejemplo son solo para este laboratorio.
